@@ -12,10 +12,12 @@ public class Rule1 extends Rule {
 
     @Override
     public String getSynopsis() {
-        return "TODO";
+        return "Cyclomatic complexity of a function";
     }
 
-    public void check(final JuliaParser.DeclarationContext ctx, final BufferedTokenStream tokens) {
-        addViolation(1, ctx, "TODO");
+    @Override
+    public void check(final JuliaParser.FunctionDefinition1Context ctx, final BufferedTokenStream tokens) {
+        final long cyclox = 5;
+        addViolation(1, ctx, String.format("The cyclomatic complexity for the function is %d", cyclox));
     }
 }

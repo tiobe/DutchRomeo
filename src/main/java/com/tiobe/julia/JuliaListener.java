@@ -18,7 +18,15 @@ public class JuliaListener extends JuliaBaseListener {
         this.tokens = tokens;
     }
 
-    @Override public void enterMain(final JuliaParser.MainContext ctx) {
+    @Override
+    public void enterMain(final JuliaParser.MainContext ctx) {
+        for (final Rule rule : rules) {
+            rule.check(ctx, tokens);
+        }
+    }
+
+    @Override
+    public void enterFunctionDefinition1(final JuliaParser.FunctionDefinition1Context ctx) {
         for (final Rule rule : rules) {
             rule.check(ctx, tokens);
         }

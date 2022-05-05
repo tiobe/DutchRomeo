@@ -54,14 +54,9 @@ public class RulesTests {
         for (int i = 0; i < lines.size(); i++) {
             final String line = lines.get(i);
             final int lineNumber = i + 1;
-            Matcher matcher = Pattern.compile("# Violation([^+]|$)").matcher(line);
+            final Matcher matcher = Pattern.compile("# Violation").matcher(line);
             while (matcher.find()) {
                 lineNumbers.add(lineNumber);
-            }
-            // Allow e.g. # Violation+3 to indicate a violation 3 lines ahead. This is needed because Gherkin has no EOL comments
-            matcher = Pattern.compile("# Violation\\+(\\d)").matcher(line);
-            while (matcher.find()) {
-                lineNumbers.add(lineNumber + Integer.parseInt(matcher.group(1)));
             }
         }
         return lineNumbers;
