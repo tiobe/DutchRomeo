@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public abstract class Rule {
-    private transient final List<Violation> violations;
+    private final transient List<Violation> violations;
     private String id = this.getClass().getSimpleName();
 
     public Rule(final List<Violation> violations) {

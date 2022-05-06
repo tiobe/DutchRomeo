@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -58,7 +59,7 @@ public class App {
     public static void main(final String... args) throws IOException {
         final List<String> ruleNames = new ArrayList<>();
         boolean jsonOutput = false;
-        String filename = "";
+        final List<String> filenames = new ArrayList<>();
 
         if (args.length == 0) {
             System.out.println("No argument provided, use 'DutchRomeo (--version | { --rule<digits> }* <inputfile>.jl)'");
@@ -69,7 +70,7 @@ public class App {
                 ruleNames.add(String.format("Rule%s", (arg.substring(arg.lastIndexOf('e') + 1))));
             } else if (arg.toLowerCase().endsWith(".jl")) {
                 if (new File(arg).exists()) {
-                    filename = arg;
+                    filenames.add(arg);
                 } else {
                     System.out.println("Input file '" + arg + "' doesn't exist");
                     System.exit(1);
@@ -86,34 +87,42 @@ public class App {
             }
         }
 
-        if (filename.isEmpty()) {
+        if (filenames.isEmpty()) {
             System.out.println("No input file name specified");
             System.exit(1);
         }
 
-        checkViolations(filename, ruleNames, jsonOutput);
+        checkViolations(filenames, ruleNames, jsonOutput);
 
         System.exit(0);
     }
 
-    private static void checkViolations(final String filename, final List<String> ruleNames, final boolean jsonOutput) throws IOException {
-        final List<Violation> violations = getViolations(filename, ruleNames);
-
-        if (violations.isEmpty()) {
-            System.out.println("No violations found");
-        }
+    private static void checkViolations(final List<String> filenames, final List<String> ruleNames, final boolean jsonOutput) throws IOException {
+        final Map<String, List<Violation>> violationsPerFile = getViolationsPerFile(filenames, ruleNames);
 
         if (jsonOutput) {
             final Gson gson = new Gson();
-            final Map<String, List<Violation>> violationsPerFile = violations.stream()
-                    .collect(Collectors.groupingBy(Violation::getFilename));
             final String jsonString = gson.toJson(Map.of("violations", violationsPerFile));
             System.out.println(jsonString);
         } else {
+            final List<Violation> violations = violationsPerFile.values().stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.toUnmodifiableList());
+            if (violations.isEmpty()) {
+                System.out.println("No violations found");
+            }
             for (Violation violation : violations) {
                 violation.printToStdout();
             }
         }
+    }
+
+    public static Map<String, List<Violation>> getViolationsPerFile(final List<String> filenames, final List<String> ruleNames) throws IOException {
+        final Map<String, List<Violation>> violationsPerFile = new HashMap<>();
+        for (String filename : filenames) {
+            violationsPerFile.put(filename, getViolations(filename, ruleNames));
+        }
+        return violationsPerFile;
     }
 
     public static List<Violation> getViolations(final String filename, final List<String> ruleNames) throws IOException {
