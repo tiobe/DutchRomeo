@@ -8,6 +8,7 @@ public class Violation {
     private final int lineNumber;
     private final int columnNumber;
     private final String extraMessage;
+    private final String filename; // added for JSON serialization
 
     Violation(final Rule rule, final ParserRuleContext ctx) {
         this(rule, ctx, "");
@@ -30,6 +31,7 @@ public class Violation {
         this.lineNumber = lineNumber;
         this.columnNumber = columnNumber;
         this.extraMessage = extraMessage;
+        this.filename = App.getCurrentFilename();
     }
 
     public void printToStdout(final String filename) {

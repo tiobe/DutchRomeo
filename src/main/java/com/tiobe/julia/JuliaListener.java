@@ -8,7 +8,7 @@ import java.util.List;
 
 public class JuliaListener extends JuliaBaseListener {
     private final List<Rule> rules;
-    private BufferedTokenStream tokens;
+    private final BufferedTokenStream tokens;
 
     public JuliaListener(final BufferedTokenStream tokens, final List<Rule> rules) {
         this.rules = rules;

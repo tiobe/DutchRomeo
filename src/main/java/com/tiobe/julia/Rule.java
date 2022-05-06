@@ -7,19 +7,20 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import java.util.List;
 
 public abstract class Rule {
-    private final List<Violation> violations;
+    private transient final List<Violation> violations;
+    private String id = this.getClass().getSimpleName();
 
     public Rule(final List<Violation> violations) {
         this.violations = violations;
     }
 
     public String getRuleId() {
-        return this.getClass().getSimpleName();
+        return id;
     }
 
     public abstract String getSynopsis();
 
-    protected void addViolation(final int ruleID, final ParserRuleContext ctx, final String extraMessage) {
+    protected void addViolation(final ParserRuleContext ctx, final String extraMessage) {
         addViolation(new Violation(this, ctx, extraMessage));
     }
     protected void addViolation(final Violation violation) {

@@ -1,6 +1,7 @@
 // Copyright 2022, TIOBE Software B.V.
 package com.tiobe.julia;
 
+import com.google.gson.Gson;
 import com.tiobe.antlr.JuliaLexer;
 import com.tiobe.antlr.JuliaParser;
 import org.antlr.v4.runtime.CharStream;
@@ -12,14 +13,19 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class App {
     private static String FILENAME;
 
+    public static String getCurrentFilename() {
+        return FILENAME;
+    }
 
     public static List<Rule> getRules(final List<String> ruleNames, final List<Violation> violations) {
         return ruleNames.stream()
@@ -57,6 +63,7 @@ public class App {
 
     public static void main(final String... args) throws IOException {
         final List<String> ruleNames = new ArrayList<>();
+        boolean jsonOutput = false;
         String filename = "";
 
         if (args.length == 0) {
@@ -73,6 +80,8 @@ public class App {
                     System.out.println("Input file '" + arg + "' doesn't exist");
                     System.exit(1);
                 }
+            } else if (arg.equals("--json")) {
+                jsonOutput = true;
             } else if (arg.equals("--version")) {
                 final String version = getVersion();
                 System.out.println("DutchRomeo version " + version + ", Copyright 2022, TIOBE Software B.V.");
@@ -88,20 +97,26 @@ public class App {
             System.exit(1);
         }
 
-        checkViolations(filename, ruleNames);
+        checkViolations(filename, ruleNames, jsonOutput);
 
         System.exit(0);
     }
 
-    private static void checkViolations(final String filename, final List<String> ruleNames) throws IOException {
+    private static void checkViolations(final String filename, final List<String> ruleNames, final boolean jsonOutput) throws IOException {
         final List<Violation> violations = getViolations(filename, ruleNames);
 
         if (violations.isEmpty()) {
             System.out.println("No violations found");
         }
 
-        for (Violation violation : violations) {
-            violation.printToStdout(FILENAME);
+        if (jsonOutput) {
+            final Gson gson = new Gson();
+            final String jsonString = gson.toJson(Map.of("violations", Map.of(FILENAME, violations)));
+            System.out.println(jsonString);
+        } else {
+            for (Violation violation : violations) {
+                violation.printToStdout(FILENAME);
+            }
         }
     }
 
@@ -115,7 +130,7 @@ public class App {
         final List<Violation> violations = new ArrayList<>(); // TODO: rewrite so that violations are printed while running (stream)
         final List<Rule> rules = getRules(ruleNames, violations);
 
-        FILENAME = tokens.getSourceName();
+        FILENAME = Path.of(filename).toRealPath().toString();
         walker.walk(new JuliaListener(tokens, rules), tree);
 
         return violations;
