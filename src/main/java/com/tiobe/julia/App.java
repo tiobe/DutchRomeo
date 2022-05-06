@@ -21,12 +21,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class App {
-    private static String FILENAME;
-
-    public static String getCurrentFilename() {
-        return FILENAME;
-    }
-
     public static List<Rule> getRules(final List<String> ruleNames, final List<Violation> violations) {
         return ruleNames.stream()
                 .map(App::getRuleByName)
@@ -111,11 +105,13 @@ public class App {
 
         if (jsonOutput) {
             final Gson gson = new Gson();
-            final String jsonString = gson.toJson(Map.of("violations", Map.of(FILENAME, violations)));
+            final Map<String, List<Violation>> violationsPerFile = violations.stream()
+                    .collect(Collectors.groupingBy(Violation::getFilename));
+            final String jsonString = gson.toJson(Map.of("violations", violationsPerFile));
             System.out.println(jsonString);
         } else {
             for (Violation violation : violations) {
-                violation.printToStdout(FILENAME);
+                violation.printToStdout();
             }
         }
     }
@@ -130,9 +126,7 @@ public class App {
         final List<Violation> violations = new ArrayList<>(); // TODO: rewrite so that violations are printed while running (stream)
         final List<Rule> rules = getRules(ruleNames, violations);
 
-        FILENAME = Path.of(filename).toRealPath().toString();
-        walker.walk(new JuliaListener(tokens, rules), tree);
-
+        walker.walk(new JuliaListener(Path.of(filename).toRealPath(), tokens, rules), tree);
         return violations;
     }
 }

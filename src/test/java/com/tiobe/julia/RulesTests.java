@@ -69,7 +69,7 @@ public class RulesTests {
         final List<String> lines = contents.lines().collect(Collectors.toUnmodifiableList());
         final List<Integer> expected = getExpectedViolationLineNumbers(lines);
         final List<Violation> violations = App.getViolations(path.toString(), List.of("Rule" + rule));
-        violations.forEach(x -> x.printToStdout(path.toString()));
+        violations.forEach(Violation::printToStdout);
         final List<Integer> actual = violations.stream()
                 .map(Violation::getLineNumber)
                 .sorted()

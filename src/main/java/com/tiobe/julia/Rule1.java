@@ -3,6 +3,7 @@ package com.tiobe.julia;
 import com.tiobe.antlr.JuliaParser;
 import org.antlr.v4.runtime.BufferedTokenStream;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class Rule1 extends Rule {
@@ -16,8 +17,8 @@ public class Rule1 extends Rule {
     }
 
     @Override
-    public void check(final JuliaParser.FunctionDefinition1Context ctx, final BufferedTokenStream tokens) {
+    public void check(final Path filename, final JuliaParser.FunctionDefinition1Context ctx, final BufferedTokenStream tokens) {
         final long cyclox = 5;
-        addViolation(ctx, String.format("The cyclomatic complexity for the function is %d", cyclox));
+        addViolation(filename, ctx, String.format("The cyclomatic complexity for the function is %d", cyclox));
     }
 }
