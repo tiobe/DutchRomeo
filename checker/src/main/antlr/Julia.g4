@@ -25,7 +25,11 @@ functionDefinition1
     ;
 
 functionDefinition2
-    : IDENTIFIER '(' anyToken*? ')' '=' functionBody
+    : IDENTIFIER '(' anyToken*? ')' whereClause*? '=' functionBody
+    ;
+
+whereClause
+    : WHERE anyToken*?
     ;
 
 functionBody
@@ -86,6 +90,7 @@ FOR : 'for' ;
 FUNCTION : 'function' ;
 IF : 'if' ;
 TRY : 'try' ;
+WHERE : 'where' ;
 WHILE : 'while' ;
 
 IDENTIFIER : [$a-zA-Z_] [a-zA-Z_0-9]* ;
