@@ -21,7 +21,7 @@ functionDefinition
     ;
 
 functionDefinition1
-    : FUNCTION IDENTIFIER anyToken*? '(' anyToken*? ')' functionBody END
+    : FUNCTION IDENTIFIER? anyToken*? '(' anyToken*? ')'  whereClause*? functionBody END
     ;
 
 functionDefinition2
@@ -38,6 +38,7 @@ functionBody
 
 statement
     : forStatement
+    | functionDefinition1
     | ifStatement
     | tryCatchStatement
     | whileStatement
@@ -64,11 +65,13 @@ anyToken
     | END
     | FOR
     | IDENTIFIER
+    | WHERE
     | '('
     | ')'
     | '='
     | '&&' // short-circuit
     | '||' // short-circuit
+    | '==' // to disambiguate from "="
     ;
 
 // Lexer

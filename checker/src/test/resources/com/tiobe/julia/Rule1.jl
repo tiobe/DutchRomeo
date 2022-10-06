@@ -130,3 +130,26 @@ end
 for step_spec_to in spec.steps
     amcm_list_from_spec!(amcm_list, step_spec_from, step_spec_to; noise_center_location=noise_center_location, n_elt_per_ms_comb=n_elt_per_ms_comb)
 end
+
+function caesar(rot, s) # Violation
+    rotate = function (r) # Violation
+        if 'a' <= r <= 'z'
+            v = ((r - 'a') + rot) % 26
+            return v + 'a'
+        end
+        if 'A' <= r <= 'Z'
+            v = ((r - 'A') + rot) % 26
+            return v + 'A'
+        end
+        return r
+    end
+    if s isa Char
+        return rotate(s)
+    end
+    result = ""
+    for r in s
+        result *= rotate(r)
+    end
+    return result
+end
+
