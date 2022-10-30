@@ -6,7 +6,6 @@ grammar Julia;
 
 // TODO
 
-// Check in
 // Calculate cyclomatic complexity
 // Create tokenizer for CPD
 // Publish first version 0.1 in Github and remain public for all increments
@@ -37,12 +36,17 @@ functionBody
     ;
 
 statement
-    : forStatement
+    : forIfStatement
+    | forStatement
     | functionDefinition1
     | ifStatement
     | tryCatchStatement
     | whileStatement
     ;
+
+forIfStatement
+   : FOR anyToken*? IF anyToken*?
+   ;
 
 forStatement
     : FOR functionBody END
@@ -97,7 +101,6 @@ WHERE : 'where' ;
 WHILE : 'while' ;
 
 IDENTIFIER : [$a-zA-Z_] [a-zA-Z_0-9]* ;
-
 
 ANY : . ;
 

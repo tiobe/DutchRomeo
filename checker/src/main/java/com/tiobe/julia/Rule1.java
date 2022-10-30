@@ -55,7 +55,7 @@ public class Rule1 extends Rule {
             check(ctx.functionDefinition1());
         } else if (ctx.tryCatchStatement() != null) {
             ctx.tryCatchStatement().functionBody().forEach(this::check);
-        } else {
+        } else if (ctx.whileStatement() != null){
             check(ctx.whileStatement().functionBody());
         }
     }
@@ -91,8 +91,10 @@ public class Rule1 extends Rule {
             return 0; // a nested function definition is encountered, which will be treated separately
         } else if (ctx.tryCatchStatement() != null) {
             return 1 + ctx.tryCatchStatement().functionBody().stream().map(this::getCyclox).reduce(0, Integer::sum);
-        } else {
+        } else if (ctx.whileStatement() != null) {
             return 1 + getCyclox(ctx.whileStatement().functionBody());
+        } else {
+            return 0;
         }
     }
 

@@ -57,11 +57,13 @@ public class App {
         String filename = "";
 
         if (args.length == 0) {
-            System.out.println("No argument provided, use 'DutchRomeo (--version | { --rule<digits> }* <inputfile>.jl)'");
+            System.out.println("No argument provided, use 'DutchRomeo (--version | --cyclox <inputfile>.jl | { --rule<digits> }* <inputfile>.jl)'");
             System.exit(1);
         }
         for (String arg : args) {
-            if (arg.startsWith("--rule")) {
+            if (arg.startsWith("--cyclox")) {
+                ruleNames.add("Rule1");
+            } else if (arg.startsWith("--rule")) {
                 ruleNames.add(String.format("Rule%s", (arg.substring(arg.lastIndexOf('e') + 1))));
             } else if (arg.toLowerCase().endsWith(".jl")) {
                 if (new File(arg).exists()) {
