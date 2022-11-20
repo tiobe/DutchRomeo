@@ -11,7 +11,7 @@ grammar Julia;
 // Publish first version 0.1 in Github and remain public for all increments
 
 main
-    : functionBody (functionDefinition functionBody)* EOF
+    : functionBody (functionDefinition functionBody)* END? EOF
     ;
 
 functionDefinition
@@ -20,11 +20,16 @@ functionDefinition
     ;
 
 functionDefinition1
-    : FUNCTION IDENTIFIER? anyToken*? '(' anyToken*? ')'  whereClause*? functionBody END
+    : FUNCTION IDENTIFIER? anyToken*? ('(' anyToken*? ')'  whereClause*? functionBody)? END
     ;
 
 functionDefinition2
-    : IDENTIFIER '(' anyToken*? ')' whereClause*? '=' functionBody
+    : functionIdentifier '(' anyToken*? ')' whereClause*? '=' functionBody
+    ;
+
+functionIdentifier
+    : IDENTIFIER
+    | '(' anyToken*? ')' // Operator
     ;
 
 whereClause
@@ -32,32 +37,57 @@ whereClause
     ;
 
 functionBody
-    : anyToken*? (statement anyToken*?)*
+    : anyToken*? (statement anyToken*?)*?
     ;
 
 statement
-    : forIfStatement
+    : beginStatement
+    | doStatement
     | forStatement
     | functionDefinition1
     | ifStatement
+    | letStatement
+    | macroStatement
+    | structStatement
     | tryCatchStatement
+    | typeStatement
     | whileStatement
     ;
 
-forIfStatement
-   : FOR anyToken*? IF anyToken*?
-   ;
+beginStatement
+    : BEGIN functionBody END
+    ;
+
+doStatement
+    : DO functionBody END
+    ;
 
 forStatement
     : FOR functionBody END
-;
+    ;
 
 ifStatement
     : IF functionBody (ELSIF functionBody)* (ELSE functionBody)? END
     ;
 
+letStatement
+    : LET functionBody END
+    ;
+
+macroStatement
+    : MACRO functionBody END
+    ;
+
+structStatement
+    : STRUCT functionBody END
+    ;
+
 tryCatchStatement
     : TRY functionBody (CATCH functionBody)? (FINALLY functionBody)? END
+    ;
+
+typeStatement
+    : TYPE functionBody END
     ;
 
 whileStatement
@@ -66,12 +96,30 @@ whileStatement
 
 anyToken
     : ANY
+    | BEGIN
+    | CATCH
+    | CHAR
+    | DO
+    | ELSE
+    | ELSIF
     | END
+    | EXTERNALCOMMAND
+    | FINALLY
     | FOR
+    | FUNCTION
     | IDENTIFIER
+    | IF
+    | LET
+    | MACRO
+    | STRING
+    | STRUCT
+    | TRY
+    | TYPE
     | WHERE
-    | '('
-    | ')'
+    | WHILE
+    | '(' anyToken*? ')'
+    | '[' anyToken*? ']'
+    | '{' anyToken*? '}'
     | '='
     | '&&' // short-circuit
     | '||' // short-circuit
@@ -80,23 +128,31 @@ anyToken
 
 // Lexer
 
-COMMENTS : '#' ~[\r\n]* -> skip;
-MULTILINECOMMENTS : '#=' .*? '=#' -> skip;
+COMMENTS : '#' (~[=\r\n]~[\r\n]*)? -> skip; // skip #= because otherwise multiline comments are not recognized, see next line
+MULTILINECOMMENTS1 : '#=' .*? '=#' -> skip;
+MULTILINECOMMENTS2 : '```' .*? '```' -> skip;
 MULTILINESTRING : '"""' ('\\"'|.)*? '"""' -> skip;
-INDEX : '[' .*? ']' -> skip;
 NL : '\r'? '\n' -> skip ;
-STRING : '"' ('\\"'|.)*? '"' -> skip;
 WHITESPACE : [ \t]+ -> skip ;
 
+BEGIN : 'begin' ;
 CATCH : 'catch' ;
+CHAR : '\'' '\\'? .? '\'' ;
+DO : 'do' ;
 ELSE : 'else' ;
 ELSIF : 'elsif' ;
 END : 'end' ;
+EXTERNALCOMMAND : '`' .*? '`' ;
 FINALLY : 'finally' ;
 FOR : 'for' ;
 FUNCTION : 'function' ;
 IF : 'if' ;
+LET : 'let' ;
+MACRO : 'macro' ;
+STRING : '"' ('\\\\'|'\\"'|'$(' ('$(' .*? ')'|'"' .*? '"'|.)*? ')'|.)*? '"';
+STRUCT : 'struct' ;
 TRY : 'try' ;
+TYPE : 'type' ;
 WHERE : 'where' ;
 WHILE : 'while' ;
 

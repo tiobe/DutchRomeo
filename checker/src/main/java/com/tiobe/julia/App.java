@@ -63,7 +63,7 @@ public class App {
         for (String arg : args) {
             if (arg.startsWith("--cyclox")) {
                 ruleNames.add("Rule1");
-            } else if (arg.startsWith("--rule")) {
+            } else if (arg.startsWith("--rule") && arg.length() > "--rule".length()) {
                 ruleNames.add(String.format("Rule%s", (arg.substring(arg.lastIndexOf('e') + 1))));
             } else if (arg.toLowerCase().endsWith(".jl")) {
                 if (new File(arg).exists()) {
