@@ -107,8 +107,14 @@ public class App {
     public static List<Violation> getViolations(final String filename, final List<String> ruleNames) throws IOException {
         final CharStream charStream = CharStreams.fromFileName(filename);
         final JuliaLexer lexer = new JuliaLexer(charStream);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
+
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
         final JuliaParser parser = new JuliaParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
+
         final ParseTree tree = parser.main();
         final ParseTreeWalker walker = new ParseTreeWalker();
         final List<Violation> violations = new ArrayList<>(); // TODO: rewrite so that violations are printed while running (stream)
