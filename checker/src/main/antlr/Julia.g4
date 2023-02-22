@@ -1,7 +1,5 @@
 grammar Julia;
 
-@header{package com.tiobe.antlr;}
-
 // Parser
 
 // TODO
@@ -128,6 +126,18 @@ anyToken
 
 // Lexer
 
+
+fragment
+Digit
+    : [0-9]
+    ;
+
+INT
+    : Digit+
+    ;
+
+FLOAT : Digit+ '.' Digit* ;
+
 COMMENTS : '#' (~[=\r\n]~[\r\n]*)? -> skip; // skip #= because otherwise multiline comments are not recognized, see next line
 MULTILINECOMMENTS1 : '#=' .*? '=#' -> skip;
 MULTILINECOMMENTS2 : '```' .*? '```' -> skip;
@@ -155,11 +165,8 @@ TRY : 'try' ;
 TYPE : 'type' ;
 WHERE : 'where' ;
 WHILE : 'while' ;
+INSTANCE_OF : '::';
 
 IDENTIFIER : [$a-zA-Z_] [a-zA-Z_0-9]* ;
 
 ANY : . ;
-
-
-
-
