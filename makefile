@@ -7,7 +7,7 @@ TICSRULESPATH := $(TICSDEVPATH)/rules
 
 SVNVERSION := $(shell svn info . | sed -n "s/Last Changed Rev: //p")
 DAEMON := --no-daemon # to prevent using the Gradle Daemon in CI
-GRADLE := $(CURDIR)/checker/gradlew -PSVNVERSION="$(SVNVERSION)" $(DAEMON)
+GRADLE := $(CURDIR)/gradlew -PSVNVERSION="$(SVNVERSION)" $(DAEMON)
 TOOL := DutchRomeo
 
 ifeq ($(OS),Windows_NT)
@@ -21,27 +21,27 @@ endif
 all: build
 
 build:
-	$(GRADLE) distZip -p checker
+	$(GRADLE) distZip
 
 clean: clean_relnotes
-	$(GRADLE) clean -p checker
+	$(GRADLE) clean
 
 rebuild: clean build
 
 test: unittest
 
 unittest:
-	$(GRADLE) test -p checker
+	$(GRADLE) test
 
 coveragereport:
-	$(GRADLE) test jacocoTestReport -p checker
+	$(GRADLE) test jacocoTestReport
 ifneq ($(TESTCOVERAGE_RESULTDIR),)
 	$(MKDIR) -p "$(TESTCOVERAGE_RESULTDIR)/$(TOOL)"
-	cp checker/build/reports/jacoco/test/jacocoTestReport.xml "$(TESTCOVERAGE_RESULTDIR)/$(TOOL)/"
+	cp build/reports/jacoco/test/jacocoTestReport.xml "$(TESTCOVERAGE_RESULTDIR)/$(TOOL)/"
 endif
 
 package: build
-	cp checker/build/distributions/DutchRomeo.zip $(TOOL)-$(SVNVERSION).zip
+	cp build/distributions/DutchRomeo.zip $(TOOL)-$(SVNVERSION).zip
 
 # The SVN repository number from which revisions onwards one must
 # collect release notes.
