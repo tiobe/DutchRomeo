@@ -1,0 +1,51 @@
+name: Build Artifacts
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Name of the uploaded artifact
+        type: string
+    outputs:
+      artifact:
+        value: ${{jobs.build.outputs.artifact}}
+  push:
+    branches: 'main'
+    tags-ignore: '*'
+    paths-ignore:
+      - '.github/**'
+      - '.githooks/**'
+      - 'LICENSE'
+      - 'README.md'
+
+jobs:
+  gitversion:
+    uses: ./.github/workflows/gitversion.yml
+  build:
+    runs-on: self-hosted
+    needs: gitversion
+    outputs:
+      artifact: ${{steps.setname.outputs.artifact}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set artifact name
+        id: setname
+        run: echo "artifact=DutchRomeo-${{needs.gitversion.outputs.fullSemVer}}" >> $GITHUB_OUTPUT
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.4
+        with:      
+          java-version: 11
+      - name: Build
+        working-directory: ./checker
+        run: ./gradlew -PCHECKERVERSION="${{needs.gitversion.outputs.fullSemVer}}" --no-daemon distZip
+      - name: Create artifact
+        run: |
+          mkdir ./build-artifact
+          cp ./checker/build/distributions/DutchRomeo.zip ./build-artifact/${{steps.setname.outputs.artifact}}.zip
+      - name: Upload build Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ${{steps.setname.outputs.artifact}}
+          path: ./build-artifact/${{steps.setname.outputs.artifact}}.zip
