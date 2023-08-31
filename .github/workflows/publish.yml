@@ -1,0 +1,27 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  gitversion:
+    uses: ./.github/workflows/gitversion.yml
+  build:
+    uses: ./.github/workflows/build-artifacts.yml
+    needs: gitversion
+  publish:
+    runs-on: self-hosted
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{needs.build.outputs.artifact}}
+      - name: Upload artifact
+        run: curl --fail -u ${{ secrets.PRIVATE_NEXUS_USERNAME }}:${{ secrets.PRIVATE_NEXUS_PASSWORD }} --upload-file ${{needs.build.outputs.artifact}}.zip https:/artifacts.tiobe.com/repository/dutchromeo/${{needs.build.outputs.artifact}}.zip
+      - name: Trigger Jenkins job
+        run: curl -u ${{secrets.JENKINS_API_TOKEN}} ${{secrets.JENKINS_URL}}/job/DutchRomeo-Publish/build?token=dutchromeo-publish
