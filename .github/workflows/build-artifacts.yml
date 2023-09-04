@@ -10,6 +10,8 @@ on:
     outputs:
       artifact:
         value: ${{jobs.build.outputs.artifact}}
+      version:
+        value: ${{jobs.build.outputs.version}}
   push:
     branches: 'main'
     tags-ignore: '*'
@@ -23,10 +25,11 @@ jobs:
   gitversion:
     uses: ./.github/workflows/gitversion.yml
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: gitversion
     outputs:
       artifact: ${{steps.setname.outputs.artifact}}
+      version: ${{needs.gitversion.outputs.fullSemVer}}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -38,12 +41,11 @@ jobs:
         with:      
           java-version: 11
       - name: Build
-        working-directory: ./checker
         run: ./gradlew -PCHECKERVERSION="${{needs.gitversion.outputs.fullSemVer}}" --no-daemon distZip
       - name: Create artifact
         run: |
           mkdir ./build-artifact
-          cp ./checker/build/distributions/DutchRomeo.zip ./build-artifact/${{steps.setname.outputs.artifact}}.zip
+          cp ./build/distributions/DutchRomeo.zip ./build-artifact/${{steps.setname.outputs.artifact}}.zip
       - name: Upload build Artifact
         uses: actions/upload-artifact@v3.1.2
         with:
