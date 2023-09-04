@@ -3,10 +3,6 @@ name: Build Artifacts
 on:
   workflow_dispatch:
   workflow_call:
-    inputs:
-      version:
-        description: Name of the uploaded artifact
-        type: string
     outputs:
       artifact:
         value: ${{jobs.build.outputs.artifact}}
