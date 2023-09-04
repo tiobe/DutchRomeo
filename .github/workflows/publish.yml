@@ -6,11 +6,8 @@ on:
     types: [published]
 
 jobs:
-  gitversion:
-    uses: ./.github/workflows/gitversion.yml
   build:
     uses: ./.github/workflows/build-artifacts.yml
-    needs: gitversion
   publish:
     runs-on: ubuntu-latest
     needs: build
