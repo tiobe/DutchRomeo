@@ -43,7 +43,7 @@ jobs:
           mkdir ./build-artifact
           cp ./build/distributions/DutchRomeo.zip ./build-artifact/${{steps.setname.outputs.artifact}}.zip
       - name: Upload build Artifact
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: ${{steps.setname.outputs.artifact}}
           path: ./build-artifact/${{steps.setname.outputs.artifact}}.zip
